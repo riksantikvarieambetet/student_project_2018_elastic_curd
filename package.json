@@ -1,0 +1,12 @@
+{
+  "name": "elastic_crud",
+  "version": "0.0.1",
+  "description": "coordinates crud operations between elasticsearch and external API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "Max Collin, Alfred Bjersander",
+  "license": "MIT"
+}
