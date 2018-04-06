@@ -8,5 +8,8 @@
     "start": "node index.js"
   },
   "author": "Max Collin, Alfred Bjersander",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "jsonfile": "^4.0.0"
+  }
 }
