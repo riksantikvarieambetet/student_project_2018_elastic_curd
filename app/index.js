@@ -1,7 +1,7 @@
 // https://github.com/jprichardson/node-jsonfile
 var fetch = require('node-fetch');
 var jsonfile = require('jsonfile');
-var file = '/tmp/data.json'
+var file = './jsonFiles/data.json'
 
 const ksam = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&stylesheet=stylesheet/searchStyle.xsl&query=item=yxa&place=gotland&startRecord=10&hitsPerPage=25&recordSchema=presentation&x-api=test'
 
@@ -15,7 +15,10 @@ async function test() {
 
   // console.log(await fetchAsync(ksam));
   var data = await fetchAsync(ksam);
-  jsonfile.writeFile(file, data, err => console.log(err))
+  jsonfile.writeFile(file, data, (err, file) => {
+    if (err) throw err;
+    console.log('file saved')
+  })
 
 
 
@@ -30,9 +33,9 @@ jsonfile.writeFile(file, obj, function (err) {
 
 async function fetchAsync(url) {
   return await (await fetch(url, {
-    headers: new Headers({
+    headers: {
       'Accept': 'application/json'
-    })
+    }
   }
   )).json();
 }
