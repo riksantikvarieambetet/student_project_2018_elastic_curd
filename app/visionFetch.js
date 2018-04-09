@@ -2,7 +2,7 @@ var fetch = require('node-fetch');
 var jsonfile = require('jsonfile');
 var file = '/tmp/data.json';
 
-const apiKey = 'api nyckel';
+const apiKey = 'AIzaSyAVjubBDQQdBMHZrqXmJUVyun6t0Lsb2Ho';
 const visionUrl = 'https://vision.googleapis.com/v1/images:annotate?key=' + apiKey;
 
 function getImageData(imgUrl) {
@@ -15,7 +15,7 @@ function getImageData(imgUrl) {
       },
       "features": [
         {
-          "type": "LOGO_DETECTION",
+          "type": "LABEL_DETECTION",
           "maxResults": 1
         }
       ]
