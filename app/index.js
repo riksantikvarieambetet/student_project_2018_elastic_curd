@@ -30,9 +30,9 @@ jsonfile.writeFile(file, obj, function (err) {
 
 async function fetchAsync(url) {
   return await (await fetch(url, {
-    headers: new Headers({
+    headers: {
       'Accept': 'application/json'
-    })
+    }
   }
   )).json();
 }
