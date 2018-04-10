@@ -12,6 +12,15 @@ const ksam2 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=item
 // Visby 
 const ksam3 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND provinceName=Gotland AND thumbnailExists="j" AND text=visby&startRecord=0&hitsPerPage=200&recordSchema=presentation&x-api=test'
 
+//--- delete index 
+// curl -XDELETE 'localhost:9200/bank?pretty' 
+
+//--- list all indexes 
+// curl -XGET 'localhost:9200/_cat/indices?v&pretty' 
+
+// -- Kör inmatning från fil(lägg filen i 'bin'):
+// curl -XPOST 'localhost:9200/images/googleVision/_bulk?pretty' --data-binary "@c:\data.json" -H 'Content-Type: application/json'
+
 
 
 async function test() {
