@@ -1,12 +1,10 @@
 var fetch = require('node-fetch');
-var jsonfile = require('jsonfile');
-var file = '/tmp/data.json';
 
 const apiKey = 'AIzaSyAVjubBDQQdBMHZrqXmJUVyun6t0Lsb2Ho';
 const visionUrl = 'https://vision.googleapis.com/v1/images:annotate?key=' + apiKey;
 
-function getImageData(imgUrl) {
-  let images = {
+async function getImageData(imgUrl, element) {
+  let image = {
     "requests": [{
       "image": {
         "source": {
@@ -29,13 +27,15 @@ function getImageData(imgUrl) {
   fetch(visionUrl, {
     method: 'post',
     headers: { 'Accept': 'application/json, text/plain, */*', 'Content-Type': 'application/json' },
-    body: JSON.stringify(images)
+    body: JSON.stringify(image)
   }).then((res) => {
-    return res.json()
+    element res.json()
   }).catch((err) => {
     console.log(err)
   });
 }
+
+module.exports.getImageData = getImageData;
 
 /* {
   "responses": [
