@@ -1,10 +1,36 @@
 var prettyjson = require('prettyjson');
 var jsonfile = require('jsonfile');
+var rgbToHsl = require('rgb-to-hsl');
 
 var lineReader = require('readline').createInterface({
-  input: require('fs').createReadStream('./jsonFiles/data.json')
+  input: require('fs').createReadStream('./jsonFiles/data2.json')
 });
 
+async function convertRGB() {
+  var newFormat = [];
+  lineReader.on('line', function (line) {
+    object = JSON.parse(line);
+    if (object.googleVision) {
+      object.googleVision.responses[0].imagePropertiesAnnotation.dominantColors.colors.forEach(element => {
+        let col = element.color;
+
+        let hsl = rgbToHsl(col.red, col.green, col.blue)
+        let H = hsl[0];
+        let parsedS = parseFloat(hsl[1].substring(0, hsl[1].length - 1));
+        let parsedL = parseFloat(hsl[2].substring(0, hsl[2].length - 1));
+
+        element.color = { h: H, s: parsedS, l: parsedL }
+      });
+    }
+    //pushToNew(object);
+    newFormat.push(object)
+    if (newFormat.length === 296) {
+      for (var x of newFormat) {
+        writeFileAsync(x, "printing line");
+      }
+    }
+  })
+}
 
 async function reformat() {
   var newFormat = [];
@@ -32,14 +58,8 @@ async function reformat() {
   }
 }
 
-function pushToNew(object) {
-  newFormat.push(object)
-
-}
-
-
 async function writeFileAsync(data, message) {
-  var file = './jsonFiles/data2.json'
+  var file = './jsonFiles/data3.json'
   return new Promise((resolve) => {
     jsonfile.writeFile(file, data, { flag: 'a' }, (err, file) => {
       if (err) throw err;
@@ -59,4 +79,9 @@ function consoleLogJson(object) {
   }))
 }
 
-reformat(writeFileAsync);
+function test() {
+  console.log("hej")
+}
+
+/* reformat(); */
+convertRGB(writeFileAsync);

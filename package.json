@@ -12,6 +12,7 @@
   "dependencies": {
     "jsonfile": "^4.0.0",
     "node-fetch": "^2.1.2",
-    "prettyjson": "^1.2.1"
+    "prettyjson": "^1.2.1",
+    "rgb-to-hsl": "0.0.3"
   }
 }
