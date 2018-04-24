@@ -1,1 +1,1 @@
-require('./app/reformatData')
+require('./app/index')
