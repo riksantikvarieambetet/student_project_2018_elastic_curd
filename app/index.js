@@ -68,30 +68,29 @@ async function runFetchchain(fetchString, number) {
     return;
   }
 
-  /*   records['pres:item'].googleVision = await getImageData(imgAddress); */
+  records['pres:item'].googleVision = await getImageData(imgAddress);
 
   //Riskabelt! borde traversera nycklar och och substringa pres: istället.
   var newElement = JSON.stringify(records['pres:item']).replace(/pres:/g, "");
   newElement = JSON.parse(newElement);
 
-  /*   if (!newElement.googleVision.responses[0].labelAnnotations ||
-      !newElement.googleVision.responses[0].imagePropertiesAnnotation.dominantColors.colors ||
-      !newElement.googleVision.responses[0]) return;
-  
-    // We have to change scores to ints because serchkit cant handle floats for filtering
-    newElement.googleVision.responses[0].labelAnnotations.forEach(element => {
-      element.score = Math.floor(Math.round(element.score * 100));
-    }); */
+  if (!newElement.googleVision.responses[0].labelAnnotations ||
+    !newElement.googleVision.responses[0].imagePropertiesAnnotation.dominantColors.colors ||
+    !newElement.googleVision.responses[0]) return;
 
+  // We have to change scores to ints because serchkit cant handle floats for filtering
+  newElement.googleVision.responses[0].labelAnnotations.forEach(element => {
+    element.score = Math.floor(Math.round(element.score * 100));
+  });
 
-  /*   newElement.googleVision.responses[0].imagePropertiesAnnotation.dominantColors.colors.forEach(element => {
-      let col = element.color;
-      let hsl = rgbToHsl(col.red, col.green, col.blue)
-      let H = hsl[0];
-      let parsedS = parseFloat(hsl[1].substring(0, hsl[1].length - 1));
-      let parsedL = parseFloat(hsl[2].substring(0, hsl[2].length - 1));
-      element.color = { h: H, s: parsedS, l: parsedL }
-    }); */
+  newElement.googleVision.responses[0].imagePropertiesAnnotation.dominantColors.colors.forEach(element => {
+    let col = element.color;
+    let hsl = rgbToHsl(col.red, col.green, col.blue)
+    let H = hsl[0];
+    let parsedS = parseFloat(hsl[1].substring(0, hsl[1].length - 1));
+    let parsedL = parseFloat(hsl[2].substring(0, hsl[2].length - 1));
+    element.color = { h: H, s: parsedS, l: parsedL }
+  });
 
   let file = './jsonFiles/test_data2.json'
   let file2 = './jsonFiles/test_data_fetched.json'
