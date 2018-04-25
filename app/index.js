@@ -8,38 +8,30 @@ var fetch = require('node-fetch');
 var jsonfile = require('jsonfile');
 var prettyjson = require('prettyjson');
 
-
 const ksam = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&stylesheet=stylesheet/searchStyle.xsl&query=item=yxa&place=gotland&startRecord=10&hitsPerPage=25&recordSchema=presentation&x-api=test'
 const ksam2 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND provinceName=Gotland&startRecord=0&hitsPerPage=1&recordSchema=presentation&x-api=test';
-// Visby 
 const ksam3 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND provinceName=Gotland AND thumbnailExists="j" AND text=visby&startRecord=0&hitsPerPage=200&recordSchema=presentation&x-api=test'
 
-// Fetcha highres
+var rounds = 10; // Amount of final fetches
+var maxValue = 1800000; // Max number to randomize
+
+let random_set = new Set(); // Number for objects to be fetched
 
 buildRandomFetchUrl();
 
 async function buildRandomFetchUrl() {
 
-  let rounds = 1000;
-  let random_set = new Set();
-
   for (let i = 0; i < rounds; i++) {
-
-    let rand = Math.floor((Math.random() * 1800000) + 1);
+    let rand = Math.floor((Math.random() * maxValue) + 1);
     if (random_set.has(rand)) {
       rounds += 1;
     } else {
       random_set.add(rand)
+      var ksam_random = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND thumbnailExists="j"&startRecord=' + rand + '&hitsPerPage=' + 1 + '&recordSchema=presentation&x-api=test'
+      await runFetchchain(ksam_random, rand);
     }
   }
-
-  for (let number of random_set) {
-    var ksam_random = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND thumbnailExists="j"&startRecord=' + number + '&hitsPerPage=' + 1 + '&recordSchema=presentation&x-api=test'
-    await runFetchchain(ksam_random, number);
-  }
 }
-
-
 
 async function runFetchchain(fetchString, number) {
 
@@ -51,6 +43,7 @@ async function runFetchchain(fetchString, number) {
     !records['pres:item']['pres:image'] ||
     !records['pres:item']) {
     console.log("src no array")
+    rounds += 1
     return;
   }
 
@@ -64,12 +57,14 @@ async function runFetchchain(fetchString, number) {
 
   if (imgAddress === null) {
     console.log("no highres")
+    rounds += 1
     return;
   }
 
   let result = await fetchAsyncCheck(imgAddress).catch((err) => { return err; })
   if (result.status != 200) {
     console.log("bad imgAddress")
+    rounds += 1
     return;
   }
 
