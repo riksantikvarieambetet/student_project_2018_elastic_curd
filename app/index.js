@@ -7,17 +7,21 @@ var rgbToHsl = require('rgb-to-hsl');
 var fetch = require('node-fetch');
 var jsonfile = require('jsonfile');
 var prettyjson = require('prettyjson');
+var ignoreNumbers = require('./IgnoreNumbers')
+var rounds = 200; // Amount of final fetches
+var maxValue = 1123000; // Max number to randomize
+var random_set = new Set(); // Number for objects to be fetched
 
-const ksam = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&stylesheet=stylesheet/searchStyle.xsl&query=item=yxa&place=gotland&startRecord=10&hitsPerPage=25&recordSchema=presentation&x-api=test'
-const ksam2 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND provinceName=Gotland&startRecord=0&hitsPerPage=1&recordSchema=presentation&x-api=test';
-const ksam3 = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND provinceName=Gotland AND thumbnailExists="j" AND text=visby&startRecord=0&hitsPerPage=200&recordSchema=presentation&x-api=test'
+setIgnoreNumbers();
 
-var rounds = 10; // Amount of final fetches
-var maxValue = 1800000; // Max number to randomize
-
-let random_set = new Set(); // Number for objects to be fetched
-
-buildRandomFetchUrl();
+function setIgnoreNumbers() {
+  ignoreNumbers.forEach(element => {
+    random_set.add(element);
+  });
+  buildRandomFetchUrl();
+}
+/* var ksam_random = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND thumbnailExists="j"&startRecord=' + rand + '&hitsPerPage=1&recordSchema=presentation&x-api=test'
+ */
 
 async function buildRandomFetchUrl() {
 
@@ -27,7 +31,7 @@ async function buildRandomFetchUrl() {
       rounds += 1;
     } else {
       random_set.add(rand)
-      var ksam_random = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND thumbnailExists="j"&startRecord=' + rand + '&hitsPerPage=' + 1 + '&recordSchema=presentation&x-api=test'
+      var ksam_random = 'http://www.kulturarvsdata.se/ksamsok/api?method=search&query=itemType=foto AND thumbnailExists="j" AND (mediaLicense="http://kulturarvsdata.se/resurser/license%23by-nc" OR mediaLicense="http://kulturarvsdata.se/resurser/license%23by-sa" OR mediaLicense="http://kulturarvsdata.se/resurser/license%23by" OR mediaLicense="http://kulturarvsdata.se/resurser/license%23pdmark%22)&startRecord=' + rand + '&hitsPerPage=1&recordSchema=presentation&x-api=test'
       await runFetchchain(ksam_random, rand);
     }
   }
@@ -35,28 +39,44 @@ async function buildRandomFetchUrl() {
 
 async function runFetchchain(fetchString, number) {
 
-  var data = await fetchAsync(fetchString);
+  var data = await fetchAsync(fetchString)
+
   records = data.result.records.record;
+
+  console.log(records);
 
   if (!records['pres:item']['pres:image']['pres:src'][0] ||
     !records['pres:item']['pres:image']['pres:src'] ||
     !records['pres:item']['pres:image'] ||
-    !records['pres:item']) {
-    console.log("src no array")
+    !records['pres:item'] ||
+    !records) {
     rounds += 1
+    console.log("src not complete")
+    return;
+  }
+
+  if (typeof records['pres:item']['pres:context'] !== 'object') {
+    rounds += 1
+    console.log("No context object")
     return;
   }
 
   let imgAddress = null;
   for (src of records['pres:item']['pres:image']['pres:src']) {
-    if (src.type === 'highres') {
+    if (src.type === 'lowres') {
       imgAddress = src.content
-      console.log("highres found")
+      console.log("lowres found")
     }
   }
 
   if (imgAddress === null) {
-    console.log("no highres")
+    console.log("no lowres")
+    rounds += 1
+    return;
+  }
+
+  if (records['pres:item']['pres:organizationShort'] === "SHM") {
+    console.log('SHM found')
     rounds += 1
     return;
   }
@@ -92,7 +112,7 @@ async function runFetchchain(fetchString, number) {
     element.color = { h: H, s: parsedS, l: parsedL }
   });
 
-  let file = './jsonFiles/test_data2.json'
+  let file = './jsonFiles/test_data3.json'
   let file2 = './jsonFiles/test_data_fetched.json'
 
   await writeFileAsync({ "index": { "_id": newElement.id } }, '_id append: ' + newElement.id, file);
@@ -106,7 +126,7 @@ async function fetchAsync(url) {
       'Accept': 'application/json'
     }
   }
-  )).json();
+  )).json().catch((err) => { console.log(err)});
 }
 
 async function fetchAsyncCheck(url) {
