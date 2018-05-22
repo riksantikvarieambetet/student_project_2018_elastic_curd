@@ -1,3 +1,5 @@
+// Numbers to ignore in random fetch. This is handled manually.
+
 module.exports = [141921,
     765513,
     873478,
